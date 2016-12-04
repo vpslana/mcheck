@@ -136,14 +136,14 @@ print "This sender sends the most messages in the queue \n" .  color("green"),"=
 
 ($top_user_s_i, $top_sender_i) = split(/\@/,$top_sender);
 	if ( $top_sender_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
-		if ( grep /$top_sender_i/, @localdomains ) { print color("magenta"),"==> ",color ("reset") . "$top_sender_i  present in /etc/localdomains\n";
+		if ( grep /$top_sender_i/, @localdomains ) { print color("green"),"==> ",color ("reset") . "$top_sender_i  present in /etc/localdomains\n";
 			if ( -s "/etc/valiases/$top_sender_i") {
 				open (IN, "<", "/etc/valiases/$top_sender_i");
     				my @local_valias_s = <IN>;
     				chomp @local_valias_s;
     				close (IN);
 					if ( grep /$top_user_s_i/, @local_valias_s ){
-print color("magenta"),"===> ",color ("reset") . "# grep $top_user_s_i /etc/valiases/$top_sender_i \n\t\t\t @local_valias_s[$top_user_s_i] \n";
+print color("green"),"===> ",color ("reset") . "# grep $top_user_s_i /etc/valiases/$top_sender_i \n\t\t\t @local_valias_s[$top_user_s_i] \n";
 					}
 else { print color("green"),"No record for $top_user_s_i in /etc/valiases/$top_sender_i found\n",color ("reset") }; 
 			} 
@@ -171,7 +171,7 @@ foreach ( values %receivers) {
 ($top_user_r_i, $top_receiver_i) = split(/\@/,$top_receiver);
 	if ( $top_receiver_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
 		if ( grep /$top_receiver_i/, @localdomains ) {
-			print  color("magenta"),"==> ",color ("reset") . "Top receiver $top_receiver is found in /etc/localdomains\n";
+			print  color("green"),"==> ",color ("reset") . "Top receiver $top_receiver is found in /etc/localdomains\n";
 				if ( -s "/etc/valiases/$top_receiver_i") {
 					print "$top_user_r_i\n";
 					open (IN, "<", "/etc/valiases/$top_receiver_i");
