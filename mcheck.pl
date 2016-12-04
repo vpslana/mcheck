@@ -166,7 +166,7 @@ foreach ( values %receivers) {
              foreach $key (keys  %count) {
              $top_receiver = $key  if $count{$key} >= $top_receiver_cnt;
 	}
-	print "This receiver gets the most messages in the queue\n" .  color("magenta"),"=> ",color ("reset") . "$top_receiver \n";
+	print "This receiver gets the most messages in the queue\n" .  color("green"),"=> ",color ("reset") . "$top_receiver \n";
 
 ($top_user_r_i, $top_receiver_i) = split(/\@/,$top_receiver);
 	if ( $top_receiver_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
@@ -179,7 +179,7 @@ foreach ( values %receivers) {
     					chomp @local_valias_r;
     					close (IN);
 						if ( grep /$top_user_r_i/, @local_valias_r ) { 
-print color("magenta"),"===> ",color ("reset") . "# grep $top_user_r_i  /etc/valiases/$top_receiver_i\n\t\t\t@local_valias_r[$top_user_r_i] \n ";} else {print color("green"),"No record for $top_user_r_i in /etc/valiases/$top_receiver_i found\n",color ("reset") };
+print color("green"),"===> ",color ("reset") . "# grep $top_user_r_i  /etc/valiases/$top_receiver_i\n\t\t\t@local_valias_r[$top_user_r_i] \n ";} else {print color("green"),"No record for $top_user_r_i in /etc/valiases/$top_receiver_i found\n",color ("reset") };
 						} 
 				else { print color("green"),"No /etc/valiases/$top_receiver_i found\n",color ("reset") };
 				}
