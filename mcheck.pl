@@ -23,8 +23,9 @@ my $cmdpid = open3($childin, $childout, $childout, "exim", "-bpc");
   my @output = <$childout>;
       	waitpid ($cmdpid, 0);
               	chomp @output;
-                      	unless ($output[0])  {die "\"exim -bpc\" shows \"0\" mails, nothing to do. \n=============================== Mail queue total ======================\n";
- } # {$output[0] = 0}
+                      	unless ($output[0])  {
+die "\"exim -bpc\" shows \"0\" mails, nothing to do. \n=============================== Mail queue total ======================\n";
+			} # {$output[0] = 0}
                               	print "Mail Queue ($output[0] emails)\n";
 
 #print "=============================== Show the queue ========================\n";
@@ -124,67 +125,67 @@ open (IN, "<", "/etc/secondarymx");
 print "=============================== Top sender ============================\n";
 
 foreach ( values %senders) {
-        $count_s{$_}++;}
-        my  @senders_count = max values %count_s;
-        $top_sender_cnt =  $senders_count[-1];
-        print "Max number of messages per sender in the queue: $top_sender_cnt\n";
-	foreach $key (keys  %count_s) {
-        $top_sender = $key  if $count_s{$key} >= $top_sender_cnt;
-}
+		$count_s{$_}++;}
+        	my  @senders_count = max values %count_s;
+        	$top_sender_cnt =  $senders_count[-1];
+        	print "Max number of messages per sender in the queue: $top_sender_cnt\n";
+			foreach $key (keys  %count_s) {
+        			$top_sender = $key  if $count_s{$key} >= $top_sender_cnt;
+	}
 print "This sender sends the most messages in the queue \n" .  color("green"),"=> ",color ("reset") .  color(""), "$top_sender\n", color ("reset"); 
 
-
 ($top_user_s_i, $top_sender_i) = split(/\@/,$top_sender);
-if ( $top_sender_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
-if ( grep /$top_sender_i/, @localdomains ) { print color("magenta"),"==> ",color ("reset") . "$top_sender_i  present in /etc/localdomains\n";
-	if ( -s "/etc/valiases/$top_sender_i") {
-	open (IN, "<", "/etc/valiases/$top_sender_i");
-    	my @local_valias_s = <IN>;
-    	chomp @local_valias_s;
-    	close (IN);
-	if ( grep /$top_user_s_i/, @local_valias_s ){
-print color("magenta"),"===> ",color ("reset") . "# grep $top_user_s_i /etc/valiases/$top_sender_i \n\t\t\t @local_valias_s[$top_user_s_i] \n";} else 
-{ print color("green"),"No record for $top_user_s_i in /etc/valiases/$top_sender_i found\n",color ("reset") }; 
-}
+	if ( $top_sender_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
+		if ( grep /$top_sender_i/, @localdomains ) { print color("magenta"),"==> ",color ("reset") . "$top_sender_i  present in /etc/localdomains\n";
+			if ( -s "/etc/valiases/$top_sender_i") {
+				open (IN, "<", "/etc/valiases/$top_sender_i");
+    				my @local_valias_s = <IN>;
+    				chomp @local_valias_s;
+    				close (IN);
+					if ( grep /$top_user_s_i/, @local_valias_s ){
+print color("magenta"),"===> ",color ("reset") . "# grep $top_user_s_i /etc/valiases/$top_sender_i \n\t\t\t @local_valias_s[$top_user_s_i] \n";
+					}
+else { print color("green"),"No record for $top_user_s_i in /etc/valiases/$top_sender_i found\n",color ("reset") }; 
+			} 
 else { print color("green"),"No /etc/valiases/$top_sender_i found\n",color ("reset") };
-}
+		}
 else { print color ("red")," Top sender $top_sender is NOT in /etc/localdomains \n",color ("reset") ; }
+	}
+else { print color ("red"),"Sender domain is not a valid domain\n",color ("reset");
 }
-else { print color ("red"),"Sender domain is not a valid domain\n",color ("reset");}
 #print "=============================== Top sender end=========================\n";
 
 print "=============================== Top receiver ==========================\n";
 
 foreach ( values %receivers) {
         $count{$_}++;
-                         }
+	}
 	my  @receivers_count =  max values %count;
              $top_receiver_cnt =  $receivers_count[-1];
              print "Max number of messages per receiver in the queue: $top_receiver_cnt \n";
              foreach $key (keys  %count) {
              $top_receiver = $key  if $count{$key} >= $top_receiver_cnt;
-}
-     print "This receiver gets the most messages in the queue\n" .  color("magenta"),"=> ",color ("reset") . "$top_receiver \n";
+	}
+	print "This receiver gets the most messages in the queue\n" .  color("magenta"),"=> ",color ("reset") . "$top_receiver \n";
 
 ($top_user_r_i, $top_receiver_i) = split(/\@/,$top_receiver);
-if ( $top_receiver_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
-if ( grep /$top_receiver_i/, @localdomains ) {
-print  color("magenta"),"==> ",color ("reset") . "Top receiver $top_receiver is found in /etc/localdomains\n";
-if ( -s "/etc/valiases/$top_receiver_i") {
-	print "$top_user_r_i\n";
-	open (IN, "<", "/etc/valiases/$top_receiver_i");
-    	my @local_valias_r = <IN>;
-    	chomp @local_valias_r;
-    	close (IN);
-
-if ( grep /$top_user_r_i/, @local_valias_r ) {
- print color("magenta"),"===> ",color ("reset") . "# grep $top_user_r_i  /etc/valiases/$top_receiver_i\n\t\t\t@local_valias_r[$top_user_r_i] \n ";} else {print color("green"),"No record for $top_user_r_i in /etc/valiases/$top_receiver_i found\n",color ("reset") };
-} 
-else { print color("green"),"No /etc/valiases/$top_receiver_i found\n",color ("reset") };
-}
-else { print color ("red"),"Top receiver $top_receiver is NOT found in /etc/localdomains \n",color ("reset") ; };
-}
-else { print  color ("red"),"Receiving domain is not a valid domain\n",color ("reset");;}
+	if ( $top_receiver_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
+		if ( grep /$top_receiver_i/, @localdomains ) {
+			print  color("magenta"),"==> ",color ("reset") . "Top receiver $top_receiver is found in /etc/localdomains\n";
+				if ( -s "/etc/valiases/$top_receiver_i") {
+					print "$top_user_r_i\n";
+					open (IN, "<", "/etc/valiases/$top_receiver_i");
+    					my @local_valias_r = <IN>;
+    					chomp @local_valias_r;
+    					close (IN);
+						if ( grep /$top_user_r_i/, @local_valias_r ) { 
+print color("magenta"),"===> ",color ("reset") . "# grep $top_user_r_i  /etc/valiases/$top_receiver_i\n\t\t\t@local_valias_r[$top_user_r_i] \n ";} else {print color("green"),"No record for $top_user_r_i in /etc/valiases/$top_receiver_i found\n",color ("reset") };
+						} 
+				else { print color("green"),"No /etc/valiases/$top_receiver_i found\n",color ("reset") };
+				}
+			else { print color ("red"),"Top receiver $top_receiver is NOT found in /etc/localdomains \n",color ("reset") };
+			}
+	else { print  color ("red"),"Receiving domain is not a valid domain\n",color ("reset") }
 
 #print "=============================== Top receiver end=======================\n";
 #
