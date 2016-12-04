@@ -193,5 +193,5 @@ print color("green"),"===> ",color ("reset") . "# grep $top_user_r_i  /etc/valia
 #
 #
 #
-#
 # For more options to clear mail queue see: ephur -> on github -> exim_despam/exim_queue.pl
+# :wq
