@@ -13,7 +13,7 @@ use IPC::Open3;
 use List::Util qw(max);
 use Data::Dumper;
 use Term::ANSIColor;
-our (@receivers_count,@local_valias_s,@local_valias_r,$top_user_s_i,@local_valias,$top_user_r_i,$top_sender_i,$top_receiver_i,$input,$xdomain,@localdomains,@local_from_user,@local_to_user,$local_from_user,$top_sender_cnt,$top_sender,$top_receiver_cnt,$top_receiver,$top_sender,$receivers,%count_s,%count,$username,$key,$domain,$expcnt,$queue,$line,%receivers,%senders, %queue, %local_from_user, %local_to_user, %local_to, %local_from, @queuen);
+our (@e_main_log, $filename, $lines, $top_receiver_local, $top_sender_local, $top_user_s_i_valias, $top_user_r_i_valias, @local_user_r_s, @receivers_count,@local_valias_s,@local_valias_r,$top_user_s_i,@local_valias,$top_user_r_i,$top_sender_i,$top_receiver_i,$input,$xdomain,@localdomains,@local_from_user,@local_to_user,$local_from_user,$top_sender_cnt,$top_sender,$top_receiver_cnt,$top_receiver,$top_sender,$receivers,%count_s,%count,$username,$key,$domain,$expcnt,$queue,$line,%receivers,%senders, %queue, %local_from_user, %local_to_user, %local_to, %local_from, @queuen);
 
 
 print "=============================== Mail queue total ======================\n";
@@ -121,6 +121,8 @@ open (IN, "<", "/etc/secondarymx");
            	 
                                                    	}
 }
+
+
 #print "=============================== Localdomains array end================\n";
 print "=============================== Top sender ============================\n";
 
@@ -139,17 +141,21 @@ print "This sender sends the most messages in the queue \n" .  color("green"),"=
 		if ( grep /$top_sender_i/, @localdomains ) { print color("green"),"==> ",color ("reset") . "$top_sender_i  present in /etc/localdomains\n";
 			if ( -s "/etc/valiases/$top_sender_i") {
 				open (IN, "<", "/etc/valiases/$top_sender_i");
-    				my @local_valias_s = <IN>;
-    				chomp @local_valias_s;
-    				close (IN);
+				foreach my $line (<IN>) {
+                                chomp $line;
+                                push @local_valias_s, $line;
+                                @local_valias_s = grep  { $_ ne '' } @local_valias_s;
+    				if ($line =~ /^$top_user_s_i/) { $top_user_s_i_valias = $line."\n";}
+				}
+				close (IN);
 					if ( grep /$top_user_s_i/, @local_valias_s ){
-print color("green"),"===> ",color ("reset") . "# grep $top_user_s_i /etc/valiases/$top_sender_i \n\t\t\t @local_valias_s[$top_user_s_i] \n";
+print color("green"),"===> ",color ("reset") . "# grep $top_user_s_i /etc/valiases/$top_sender_i \n\t\t\t $top_user_s_i_valias \n";
 					}
 else { print color("green"),"No record for $top_user_s_i in /etc/valiases/$top_sender_i found\n",color ("reset") }; 
 			} 
 else { print color("green"),"No /etc/valiases/$top_sender_i found\n",color ("reset") };
 		}
-else { print color ("red")," Top sender $top_sender is NOT in /etc/localdomains \n",color ("reset") ; }
+else { print color ("red")," Top sender $top_sender_i is NOT in /etc/localdomains \n",color ("reset") ; }
 	}
 else { print color ("red"),"Sender domain is not a valid domain\n",color ("reset");
 }
@@ -170,23 +176,107 @@ foreach ( values %receivers) {
 
 ($top_user_r_i, $top_receiver_i) = split(/\@/,$top_receiver);
 	if ( $top_receiver_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
+		if ( $top_user_r_i !~ /^+D/ ) {
 		if ( grep /$top_receiver_i/, @localdomains ) {
 			print  color("green"),"==> ",color ("reset") . "Top receiver $top_receiver is found in /etc/localdomains\n";
 				if ( -s "/etc/valiases/$top_receiver_i") {
-					print "$top_user_r_i\n";
+					$top_user_r_i =~ s/^\s+|\s+$//g; 
 					open (IN, "<", "/etc/valiases/$top_receiver_i");
-    					my @local_valias_r = <IN>;
-    					chomp @local_valias_r;
+					foreach my $line (<IN>) {
+			                chomp $line;
+					push @local_valias_r, $line; 
+					@local_valias_r = grep  { $_ ne '' } @local_valias_r;
+#					foreach $line ( @local_valias_r ) {
+#						$line =~ s/['\$','\#','\@','\~','\!','\&','\*','\(','\)','\[','\]','\;','\.','\,','\:','\?','\^',' ', '\`','\\','\/','\|','\"']//g;
+#						}
+					if ($line =~ /^$top_user_r_i/) { $top_user_r_i_valias = $line."\n";}
+}
     					close (IN);
-						if ( grep /$top_user_r_i/, @local_valias_r ) { 
-print color("green"),"===> ",color ("reset") . "# grep $top_user_r_i  /etc/valiases/$top_receiver_i\n\t\t\t@local_valias_r[$top_user_r_i] \n ";} else {print color("green"),"No record for $top_user_r_i in /etc/valiases/$top_receiver_i found\n",color ("reset") };
+					if ( grep /$top_user_r_i/,  @local_valias_r  ) {
+print color("green"),"===> ",color ("reset") . "# grep $top_user_r_i  /etc/valiases/$top_receiver_i\n\t\t\t$top_user_r_i_valias \n ";} else {print color("green"),"No record for $top_user_r_i in /etc/valiases/$top_receiver_i found\n",color ("reset") };
 						} 
 				else { print color("green"),"No /etc/valiases/$top_receiver_i found\n",color ("reset") };
 				}
-			else { print color ("red"),"Top receiver $top_receiver is NOT found in /etc/localdomains \n",color ("reset") };
+			else { print color ("red"),"Top receiver $top_receiver_i is NOT found in /etc/localdomains \n",color ("reset") };
 			}
+else { print  color ("red"),"Receiving user is not a valid username - perhaps +D to folder\n",color ("reset") }
+}
 	else { print  color ("red"),"Receiving domain is not a valid domain\n",color ("reset") }
 
+#print"=============================== Lets check username ====================\n";
+if ( -s "/etc/userdomains") {
+                                open (IN, "<", "/etc/userdomains");
+                                foreach my $u_r_l_record (<IN>) {
+                                chomp $u_r_l_record;
+                                push @local_user_r_s, $u_r_l_record;
+				if ( $top_sender_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
+				if ($u_r_l_record =~ /^$top_sender_i/) { $top_sender_local = $u_r_l_record;} else { next }; }
+				if ( $top_receiver_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
+				if ($u_r_l_record =~ /^$top_receiver_i/) { $top_receiver_local = $u_r_l_record} else { next }; }
+					}
+
+                                close (IN);
+}
+if ( defined $top_sender_i ) {
+if ( grep /$top_sender_i/, @local_user_r_s ) {
+print color("green"),"# grep $top_sender_i /etc/userdomains\n",color ("reset");
+print "$top_sender_local\n";} }
+if ( defined $top_receiver_i ) {
+if ( grep /$top_receiver_i/, @local_user_r_s ) {
+print color("green"),"# grep $top_receiver_i /etc/userdomainsn",color ("reset");
+print "$top_receiver_local\n";}}
+
+#print"=============================== Lets check username end=================\n";
+print"=============================== Lets tail the log ========================\n";
+
+
+my $file = "/var/log/exim_mainlog";
+my $num_of_lines = 10000;
+my $count = 0;
+my $filesize = -s $file; # filesize used to control reaching the start of file while reading it backward
+my $offset = -2; # skip two last characters: \n and ^Z in the end of file
+@e_main_log= undef;
+open F, $file or die "Can't read $file: $!\n";
+
+while (abs($offset) < $filesize) {
+    my $line = "";
+    # we need to check the start of the file for seek in mode "2" 
+    #     # as it continues to output data in revers order even when out of file range reached
+         while (abs($offset) < $filesize) {
+                seek F, $offset, 2;     # because of negative $offset & "2" - it will seek backward
+                         $offset -= 1;           # move back the counter
+                                my $char = getc F;
+                                        last if $char eq "\n"; # catch the whole line if reached
+                                               $line = $char . $line; # otherwise we have next character for current line
+                                                 }
+push @e_main_log, $line;
+                                                                     $count++;
+                                                                         last if $count > $num_of_lines;
+                                                                         }
+
+my $count_b = 0;
+my $num_of_output_lines = 15;
+foreach my $line ( @e_main_log ) {
+		if ( $line =~ /A=dovecot/ ) {
+			if ( defined $top_sender_i && $line =~ /$top_sender/ ) {
+				print $line . "\n";
+				$count_b++; 
+				last if $count_b > $num_of_output_lines;
+}
+} else { if ( $line =~ /cwd/ ) {
+	if ( defined $top_sender_i && $line =~ /$top_sender_i/ ) {
+		print $line . "\n";
+		$count_b++;
+		last if $count_b > $num_of_output_lines;
+}
+} 
+}
+}
+
+
+
+
+#
 #print "=============================== Top receiver end=======================\n";
 #
 #
@@ -195,3 +285,5 @@ print color("green"),"===> ",color ("reset") . "# grep $top_user_r_i  /etc/valia
 #
 # For more options to clear mail queue see: ephur -> on github -> exim_despam/exim_queue.pl
 # :wq
+ 
+
