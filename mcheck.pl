@@ -157,7 +157,7 @@ else { print color("green"),"No /etc/valiases/$top_sender_i found\n",color ("res
 		}
 else { print color ("red")," Top sender $top_sender_i is NOT in /etc/localdomains \n",color ("reset") ; }
 	}
-else { print color ("red"),"Sender domain is not a valid domain\n",color ("reset");
+else { print color ("red"),"Sender domain is not a valid domain\n",color ("reset") . "If this is [bounce] you can remove bounces" . "\n" . "# exim -bpr | grep \"<>\" | awk {\'print \$3\'} | xargs exim -Mrm" . "\n";
 }
 #print "=============================== Top sender end=========================\n";
 
@@ -203,6 +203,8 @@ else { print  color ("red"),"Receiving user is not a valid username - perhaps +D
 }
 	else { print  color ("red"),"Receiving domain is not a valid domain\n",color ("reset") }
 
+#print "=============================== Top receiver end =======================\n";
+
 #print"=============================== Lets check username ====================\n";
 if ( -s "/etc/userdomains") {
                                 open (IN, "<", "/etc/userdomains");
@@ -227,11 +229,11 @@ print color("green"),"# grep $top_receiver_i /etc/userdomainsn",color ("reset");
 print "$top_receiver_local\n";}}
 
 #print"=============================== Lets check username end=================\n";
-print"=============================== Lets tail the log ========================\n";
 
 
 my $file = "/var/log/exim_mainlog";
-
+if ( defined $top_sender_i or defined $top_receiver_i ) {
+print"=============================== Lets tail the log ========================\n";
 open( FILE, "$file" )
   or die( "Can't open file file_to_reverse: $!" );
 
@@ -242,25 +244,31 @@ open( FILE, "$file" )
 		foreach $line (@lines) {
                 	if ( $line =~ /A=dovecot/ ) {
                         	if ( defined $top_sender_i && $line =~ /$top_sender/ ) {
-                                	print $line ;
+                                	print color("green"),"Sender:",color ("reset")  . $line ;
 	                                $count_b++;
         	                        last if $count_b > $num_of_output_lines;
 				}
 			} else { if ( $line =~ /cwd/ ) {
 			        if ( defined $top_sender_i && $line =~ /$top_user_s_i/ ) {
-			                print $line ;
+			                print color("green"),"Sender:",color ("reset") . $line ;
 			                $count_b++;
 			                last if $count_b > $num_of_output_lines;
 				}
-			}
+			} else { if ( defined $top_receiver_i && $line =~ /$top_receiver_i/ ) {
+				print color("green"),"Receiver:",color ("reset") . $line ;
+				$count_b++;
+				last if $count_b > $num_of_output_lines;
+				}
+				}
+
 			}
 		}
-
+}
 
 
 
 #
-#print "=============================== Top receiver end=======================\n";
+#print "=============================== Tail log end=======================\n";
 #
 #
 #
