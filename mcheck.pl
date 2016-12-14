@@ -235,26 +235,26 @@ my $file = "/var/log/exim_mainlog";
 open( FILE, "$file" )
   or die( "Can't open file file_to_reverse: $!" );
 
-@lines = reverse <FILE>;
-my $count_b = 0;
-my $num_of_output_lines = 10;
+	   @lines = reverse <FILE>;
+	my $count_b = 0;
+	my $num_of_output_lines = 10;
 
-foreach $line (@lines) {
-                if ( $line =~ /A=dovecot/ ) {
-                        if ( defined $top_sender_i && $line =~ /$top_sender/ ) {
-                                print $line ;
-                                $count_b++;
-                                last if $count_b > $num_of_output_lines;
-}
-} else { if ( $line =~ /cwd/ ) {
-        if ( defined $top_sender_i && $line =~ /$top_user_s_i/ ) {
-                print $line ;
-                $count_b++;
-                last if $count_b > $num_of_output_lines;
-}
-}
-}
-}
+		foreach $line (@lines) {
+                	if ( $line =~ /A=dovecot/ ) {
+                        	if ( defined $top_sender_i && $line =~ /$top_sender/ ) {
+                                	print $line ;
+	                                $count_b++;
+        	                        last if $count_b > $num_of_output_lines;
+				}
+			} else { if ( $line =~ /cwd/ ) {
+			        if ( defined $top_sender_i && $line =~ /$top_user_s_i/ ) {
+			                print $line ;
+			                $count_b++;
+			                last if $count_b > $num_of_output_lines;
+				}
+			}
+			}
+		}
 
 
 
