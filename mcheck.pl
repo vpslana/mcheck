@@ -13,7 +13,7 @@ use IPC::Open3;
 use List::Util qw(max);
 use Data::Dumper;
 use Term::ANSIColor;
-our (@e_main_log, $filename, $lines, $top_receiver_local, $top_sender_local, $top_user_s_i_valias, $top_user_r_i_valias, @local_user_r_s, @receivers_count,@local_valias_s,@local_valias_r,$top_user_s_i,@local_valias,$top_user_r_i,$top_sender_i,$top_receiver_i,$input,$xdomain,@localdomains,@local_from_user,@local_to_user,$local_from_user,$top_sender_cnt,$top_sender,$top_receiver_cnt,$top_receiver,$top_sender,$receivers,%count_s,%count,$username,$key,$domain,$expcnt,$queue,$line,%receivers,%senders, %queue, %local_from_user, %local_to_user, %local_to, %local_from, @queuen);
+our (@e_main_log, $filename, @lines, $lines, $top_receiver_local, $top_sender_local, $top_user_s_i_valias, $top_user_r_i_valias, @local_user_r_s, @receivers_count,@local_valias_s,@local_valias_r,$top_user_s_i,@local_valias,$top_user_r_i,$top_sender_i,$top_receiver_i,$input,$xdomain,@localdomains,@local_from_user,@local_to_user,$local_from_user,$top_sender_cnt,$top_sender,$top_receiver_cnt,$top_receiver,$top_sender,$receivers,%count_s,%count,$username,$key,$domain,$expcnt,$queue,$line,%receivers,%senders, %queue, %local_from_user, %local_to_user, %local_to, %local_from, @queuen);
 
 
 print "=============================== Mail queue total ======================\n";
@@ -231,45 +231,28 @@ print"=============================== Lets tail the log ========================
 
 
 my $file = "/var/log/exim_mainlog";
-my $num_of_lines = 10000;
-my $count = 0;
-my $filesize = -s $file; # filesize used to control reaching the start of file while reading it backward
-my $offset = -2; # skip two last characters: \n and ^Z in the end of file
-@e_main_log= undef;
-open F, $file or die "Can't read $file: $!\n";
 
-while (abs($offset) < $filesize) {
-    my $line = "";
-    # we need to check the start of the file for seek in mode "2" 
-    #     # as it continues to output data in revers order even when out of file range reached
-         while (abs($offset) < $filesize) {
-                seek F, $offset, 2;     # because of negative $offset & "2" - it will seek backward
-                         $offset -= 1;           # move back the counter
-                                my $char = getc F;
-                                        last if $char eq "\n"; # catch the whole line if reached
-                                               $line = $char . $line; # otherwise we have next character for current line
-                                                 }
-push @e_main_log, $line;
-                                                                     $count++;
-                                                                         last if $count > $num_of_lines;
-                                                                         }
+open( FILE, "$file" )
+  or die( "Can't open file file_to_reverse: $!" );
 
+@lines = reverse <FILE>;
 my $count_b = 0;
-my $num_of_output_lines = 15;
-foreach my $line ( @e_main_log ) {
-		if ( $line =~ /A=dovecot/ ) {
-			if ( defined $top_sender_i && $line =~ /$top_sender/ ) {
-				print $line . "\n";
-				$count_b++; 
-				last if $count_b > $num_of_output_lines;
+my $num_of_output_lines = 10;
+
+foreach $line (@lines) {
+                if ( $line =~ /A=dovecot/ ) {
+                        if ( defined $top_sender_i && $line =~ /$top_sender/ ) {
+                                print $line ;
+                                $count_b++;
+                                last if $count_b > $num_of_output_lines;
 }
 } else { if ( $line =~ /cwd/ ) {
-	if ( defined $top_sender_i && $line =~ /$top_sender_i/ ) {
-		print $line . "\n";
-		$count_b++;
-		last if $count_b > $num_of_output_lines;
+        if ( defined $top_sender_i && $line =~ /$top_user_s_i/ ) {
+                print $line ;
+                $count_b++;
+                last if $count_b > $num_of_output_lines;
 }
-} 
+}
 }
 }
 
