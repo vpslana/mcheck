@@ -13,7 +13,7 @@ use IPC::Open3;
 use List::Util qw(max);
 use Data::Dumper;
 use Term::ANSIColor;
-our (@e_main_log, $filename, @lines, $lines, $top_receiver_local, $top_sender_local, $top_user_s_i_valias, $top_user_r_i_valias, @local_user_r_s, @receivers_count,@local_valias_s,@local_valias_r,$top_user_s_i,@local_valias,$top_user_r_i,$top_sender_i,$top_receiver_i,$input,$xdomain,@localdomains,@local_from_user,@local_to_user,$local_from_user,$top_sender_cnt,$top_sender,$top_receiver_cnt,$top_receiver,$top_sender,$receivers,%count_s,%count,$username,$key,$domain,$expcnt,$queue,$line,%receivers,%senders, %queue, %local_from_user, %local_to_user, %local_to, %local_from, @queuen);
+our ($u_r_l_record, @e_main_log, $filename, @lines, $lines, $top_receiver_local, $top_sender_local, $top_user_s_i_valias, $top_user_r_i_valias, @local_user_r_s, @receivers_count,@local_valias_s,@local_valias_r,$top_user_s_i,@local_valias,$top_user_r_i,$top_sender_i,$top_receiver_i,$input,$xdomain,@localdomains,@local_from_user,@local_to_user,$local_from_user,$top_sender_cnt,$top_sender,$top_receiver_cnt,$top_receiver,$top_sender,$receivers,%count_s,%count,$username,$key,$domain,$expcnt,$queue,$line,%receivers,%senders, %queue, %local_from_user, %local_to_user, %local_to, %local_from, @queuen);
 
 
 print "=============================== Mail queue total ======================\n";
@@ -208,7 +208,7 @@ else { print  color ("red"),"Receiving user is not a valid username - perhaps +D
 #print"=============================== Lets check username ====================\n";
 if ( -s "/etc/userdomains") {
                                 open (IN, "<", "/etc/userdomains");
-                                foreach my $u_r_l_record (<IN>) {
+                                foreach $u_r_l_record (<IN>) {
                                 chomp $u_r_l_record;
                                 push @local_user_r_s, $u_r_l_record;
 				if ( $top_sender_i =~ /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/ ) {
@@ -225,7 +225,7 @@ print color("green"),"# grep $top_sender_i /etc/userdomains\n",color ("reset");
 print "$top_sender_local\n";} }
 if ( defined $top_receiver_i ) {
 if ( grep /$top_receiver_i/, @local_user_r_s ) {
-print color("green"),"# grep $top_receiver_i /etc/userdomainsn",color ("reset");
+print color("green"),"# grep $top_receiver_i /etc/userdomains\n",color ("reset");
 print "$top_receiver_local\n";}}
 
 #print"=============================== Lets check username end=================\n";
